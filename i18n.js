@@ -1,7 +1,7 @@
 /**
  * @author      Created by Marcus Spiegel <marcus.spiegel@gmail.com> on 2011-03-25.
  * @link        https://github.com/mashpie/i18n-node
- * @license		  http://creativecommons.org/licenses/by-sa/3.0/
+ * @license      http://creativecommons.org/licenses/by-sa/3.0/
  *
  * @version     0.3.5
  */
@@ -106,7 +106,7 @@ i18n.__n = function () {
   return msg;
 };
 
-// either gets called like 
+// either gets called like
 // setLocale('en') or like
 // setLocale(req, 'en')
 i18n.setLocale = function (arg1, arg2) {
@@ -228,6 +228,8 @@ function read(locale) {
   try {
     if (verbose) console.log('read ' + file + ' for locale: ' + locale);
     localeFile = fs.readFileSync(file);
+    localeFile = localeFile.toString().replace(/^module\.exports\s\=\s/, '')
+
     try {
       // parsing filecontents to locales[locale]
       locales[locale] = JSON.parse(localeFile);
@@ -246,7 +248,7 @@ function read(locale) {
 // try writing a file in a created directory
 
 function write(locale) {
-  // creating directory if necessary 
+  // creating directory if necessary
   try {
     var stats = fs.lstatSync(directory);
   } catch (e) {
@@ -264,7 +266,7 @@ function write(locale) {
     var target = locate(locale),
         tmp = target + ".tmp";
 
-    fs.writeFileSync(tmp, JSON.stringify(locales[locale], null, "\t"), "utf8");
+    fs.writeFileSync(tmp, "module.exports = " + JSON.stringify(locales[locale], null, "\t"), "utf8");
     var Stats = fs.statSync(tmp);
     if (Stats.isFile()) {
       fs.renameSync(tmp, target);
