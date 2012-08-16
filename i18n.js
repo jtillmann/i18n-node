@@ -88,19 +88,20 @@ i18n.__n = function () {
   if (this && this.scope) {
     locale = this.scope.locale;
   }
-  var singular = arguments[0];
-  var plural = arguments[1];
-  var count = arguments[2];
-  var msg = translate(locale, singular, plural);
+  var base = arguments[0];
+  var count = arguments[1];
+  var msg = translate(locale, base, true);
 
-  if (parseInt(count, 10) > 1) {
-    msg = vsprintf(msg.other, [count]);
-  } else {
+  if(parseInt(count, 10) === 0) {
+    msg = vsprintf(msg.none, [count]);
+  } else if (parseInt(count, 10) === 1) {
     msg = vsprintf(msg.one, [count]);
+  } else {
+    msg = vsprintf(msg.other, [count]);
   }
 
-  if (arguments.length > 3) {
-    msg = vsprintf(msg, Array.prototype.slice.call(arguments, 3));
+  if (arguments.length > 2) {
+    msg = vsprintf(msg, Array.prototype.slice.call(arguments, 2));
   }
 
   return msg;
@@ -193,7 +194,7 @@ function guessLanguage(request) {
 
 // read locale file, translate a msg and write to fs if new
 
-function translate(locale, singular, plural) {
+function translate(locale, base, isN) {
   if (locale === undefined) {
     if (debug) console.warn("WARN: No locale found - check the context of the call to $__. Using " + defaultLocale + " (set by request) as current locale");
     locale = defaultLocale;
@@ -203,21 +204,22 @@ function translate(locale, singular, plural) {
     read(locale);
   }
 
-  if (plural) {
-    if (!locales[locale][singular]) {
-      locales[locale][singular] = {
-        'one': singular,
-        'other': plural
+  if (isN === true) {
+    if (!locales[locale][base]) {
+      locales[locale][base] = {
+        'none': base + '.none',
+        'one': base + '.one',
+        'other': base + '.none'
       };
       write(locale);
     }
   }
 
-  if (!locales[locale][singular]) {
-    locales[locale][singular] = singular;
+  if (!locales[locale][base]) {
+    locales[locale][base] = base;
     write(locale);
   }
-  return locales[locale][singular];
+  return locales[locale][base];
 }
 
 // try reading a file
